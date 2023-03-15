@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane prefHeight="200" prefWidth="400" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.gestionmdp.gestionmdp.goodbyController">
+    <children>
+        <Label layoutX="50" layoutY="50" text="Nom" />
+        <TextField fx:id="nomTextField" layoutX="150" layoutY="50" />
+        <Label layoutX="50" layoutY="90" text="Adresse e-mail" />
+        <TextField fx:id="emailTextField" layoutX="150" layoutY="90" />
+        <Label layoutX="50" layoutY="130" text="Mot de passe" />
+        <PasswordField fx:id="passwordField" layoutX="150" layoutY="130" />
+        <Button fx:id="submitButton" layoutX="193.0" layoutY="161.0" mnemonicParsing="false" onAction="#submit" text="S'inscrire" />
+      <Label fx:id="alertMsg" layoutX="193.0" layoutY="14.0" />
+      <CheckBox fx:id="checkLogIn" layoutX="42.0" layoutY="23.0" mnemonicParsing="false" onAction="#checkLogSign" />
+      <Label layoutX="63.0" layoutY="23.0" text="Connexion" />
+    </children>
+</AnchorPane>
