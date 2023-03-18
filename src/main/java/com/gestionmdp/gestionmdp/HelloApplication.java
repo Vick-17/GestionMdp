@@ -26,7 +26,7 @@ public class HelloApplication extends Application {
     {
         try {
             ConnextionBdd connextionBdd = new ConnextionBdd();
-            connextionBdd.connextionBdd();
+            ConnextionBdd.connextionBdd();
         } catch (SQLException e) {
             e.printStackTrace();
         }

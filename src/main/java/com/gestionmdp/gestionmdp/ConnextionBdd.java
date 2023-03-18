@@ -5,10 +5,10 @@ import java.sql.*;
 public class ConnextionBdd {
 
 
-    public void connextionBdd() throws SQLException {
+    public static Connection connextionBdd() throws SQLException {
         Connection conn = null;
         try {
-            String url = "jdbc:postgresql://localhost:5432/society";
+            String url = "jdbc:postgresql://localhost:5432/GestionMdp";
             String user = "postgres";
             String password = "iie254007.";
             conn = DriverManager.getConnection(url, user, password);
@@ -17,13 +17,6 @@ public class ConnextionBdd {
                 SQLException e) {
             System.out.println(e.getMessage());
         }
-
-        assert conn != null;
-        PreparedStatement employeeStatement = conn.prepareStatement("select * from employee");
-        ResultSet result = employeeStatement.executeQuery();
-        while (result.next()) {
-            String lastName = result.getString("last_name");
-            System.out.println(lastName);
-        }
+        return conn;
     }
 }

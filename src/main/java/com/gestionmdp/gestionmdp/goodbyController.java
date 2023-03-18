@@ -1,24 +1,19 @@
 package com.gestionmdp.gestionmdp;
+import org.mindrot.jbcrypt.BCrypt;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-
-import javafx.event.ActionEvent;
-import javafx.fxml.FXML;
 import javafx.scene.control.*;
-
-import java.io.File;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class goodbyController {
 
@@ -38,7 +33,7 @@ public class goodbyController {
     private CheckBox checkSingin;
 
     @FXML
-    private void submit(ActionEvent event) throws IOException {
+    private void submit(ActionEvent event) throws IOException, SQLException {
         ObjectMapper objectMapper = new ObjectMapper();
         // Récupérer les valeurs saisies par l'utilisateur
         String nom = nomTextField.getText();
@@ -59,12 +54,18 @@ public class goodbyController {
         Users user = new Users(nom, email, password);
 
         // Inscrire l'utilisateur
-        File fichier = new File("user.json");
-        objectMapper.writeValue(fichier, user);
+        Connection connection = ConnextionBdd.connextionBdd();
+        // Hasher le mot de passe avec BCrypt
+        String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
+
+        PreparedStatement statement = connection.prepareStatement("insert into users (email, password) values (?,?)");
+        statement.setString(1, email);
+        statement.setString(2, hashedPassword);
+        statement.executeUpdate();
         // Afficher un message de confirmation
         alertMsg.setText("Inscription réussie.");
 
-
+        //charger la scene
         FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("hello-view.fxml"));
         Scene scene = new Scene(fxmlLoader.load());
         HelloApplication.stage.setScene(scene);
@@ -73,10 +74,13 @@ public class goodbyController {
     }
 
     @FXML
-    private void connexion(ActionEvent event) throws IOException {
-        ObjectMapper objectMapper = new ObjectMapper();
+    private void connexion(ActionEvent event) throws IOException, SQLException {
         String email = emailTextField.getText();
         String password = passwordField.getText();
+        Connection connection = ConnextionBdd.connextionBdd();
+        PreparedStatement statement = connection.prepareStatement("SELECT * FROM users WHERE email = ?;");
+        statement.setString(1, email);
+        ResultSet resultSet = statement.executeQuery();
 
         if (email.isEmpty() || password.isEmpty()) {
             alertMsg.setText("Tous les champs doivent être remplis.");
@@ -87,15 +91,19 @@ public class goodbyController {
             alertMsg.setText("Email invalid");
             return;
         }
-        Users user = objectMapper.readValue(new File("user.json"), Users.class);
-        if (password.equals(user.getMotsDePasse()) || email.equals(user.getEmail())) {
-            FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("hello-view.fxml"));
-            Scene scene = new Scene(fxmlLoader.load());
-            HelloApplication.stage.setScene(scene);
-            HelloApplication.stage.setTitle("Gestion mots de passe!");
-            HelloApplication.stage.setScene(scene);
+        if (resultSet.next()) {
+            String hashedPassword = resultSet.getString("password");
+            if (BCrypt.checkpw(password, hashedPassword)) {
+                FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("hello-view.fxml"));
+                Scene scene = new Scene(fxmlLoader.load());
+                HelloApplication.stage.setScene(scene);
+                HelloApplication.stage.setTitle("Gestion mots de passe!");
+                HelloApplication.stage.setScene(scene);
+            } else {
+                alertMsg.setText("Mot de passe incorrect");
+            }
         } else {
-            alertMsg.setText("mots de passe incorecte");
+            alertMsg.setText("Email inconnu");
         }
     }
 
@@ -103,7 +111,7 @@ public class goodbyController {
     private void checkLogSign(ActionEvent event) throws IOException {
         if (checkLogIn.isSelected()){
             FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("conexion.fxml"));
-            Scene scene = new Scene(fxmlLoader.load());
+                Scene scene = new Scene(fxmlLoader.load());
             HelloApplication.stage.setScene(scene);
             HelloApplication.stage.setTitle("Gestion mots de passe!");
             HelloApplication.stage.setScene(scene);

@@ -15,6 +15,10 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URL;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Random;
 
 public class HelloController {
@@ -50,10 +54,16 @@ public class HelloController {
     private ObservableList<Password> password = FXCollections.observableArrayList();
     ObjectMapper objectMapper = new ObjectMapper();
 
-    public void initialize() throws IOException {
-        ObjectMapper objectMapper = new ObjectMapper();
-        Password[] passwords = objectMapper.readValue(new File("passwords.json"), Password[].class);
-        password.addAll(passwords);
+    public void initialize() throws IOException, SQLException {
+        Connection connection = ConnextionBdd.connextionBdd();
+        PreparedStatement passwordStatement = connection.prepareStatement("select * from passwordCompte");
+        ResultSet result = passwordStatement.executeQuery();
+        while (result.next()){
+        String name = result.getString("compteName");
+        String mdp = result.getString("mdpCompte");
+        Password p = new Password(name, mdp);
+        password.add(p);
+        }
         tableMdp.setItems(password);
         colNomMdp.setCellValueFactory(cellData -> cellData.getValue().nomProperty());
         colMdp.setCellValueFactory(cellData -> new SimpleStringProperty("..."));
@@ -94,7 +104,7 @@ public class HelloController {
     }
 
     @FXML
-    public void onSave(ActionEvent event) throws JSONException, IOException {
+    public void onSave(ActionEvent event) throws JSONException, IOException, SQLException {
         String nom = mdpName.getText();
         String mdp = generateMdp.getText();
         if (nom.isEmpty()) {
@@ -104,8 +114,11 @@ public class HelloController {
             password.add(new Password(nom, mdp));
             colNomMdp.setCellValueFactory(cellData -> cellData.getValue().nomProperty());
             colMdp.setCellValueFactory(cellData -> cellData.getValue().mdpProperty());
-            File fichier = new File("passwords.json");
-            objectMapper.writeValue(fichier, password);
+            Connection connection = ConnextionBdd.connextionBdd();
+            PreparedStatement statement = connection.prepareStatement("insert into passwordCompte (mdpCompte, compteName) values (?,?)");
+            statement.setString(1, mdp);
+            statement.setString(2, nom);
+            statement.executeUpdate();
 /*            JSONObject objJson = new JSONObject();
             objJson.put("nom", nom);
             objJson.put("mdp", mdp);

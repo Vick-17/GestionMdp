@@ -4,6 +4,7 @@ module com.gestionmdp.gestionmdp {
     requires org.json.chargebee;
     requires com.fasterxml.jackson.databind;
     requires java.sql;
+    requires jbcrypt;
 
 
     opens com.gestionmdp.gestionmdp to javafx.fxml;
