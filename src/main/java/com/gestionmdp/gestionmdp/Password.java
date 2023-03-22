@@ -1,47 +1,48 @@
 package com.gestionmdp.gestionmdp;
 
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
+
 
 public class Password {
-    private StringProperty mdp = null;
-    private StringProperty nom = null;
+    private int id = 0;
+    private String mdp = null;
+    private String nom = null;
 
-    public Password(StringProperty mdp, StringProperty nom) {
+    public Password(int id, String mdp, String nom) {
+        this.id = id;
         this.mdp = mdp;
         this.nom = nom;
     }
 
-    public Password(String nom, String mdp) {
-        this.mdp = new SimpleStringProperty(mdp);
-        this.nom = new SimpleStringProperty(nom);
+    public Password(String mdp, String nom){
+        this.mdp = mdp;
+        this.nom = nom;
     }
+
     public Password() {
-        this.mdp = new SimpleStringProperty();
-        this.nom = new SimpleStringProperty();
+
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getMdp() {
-        return mdp.get();
-    }
-
-    public StringProperty mdpProperty() {
         return mdp;
     }
 
     public void setMdp(String mdp) {
-        this.mdp.set(mdp);
+        this.mdp = mdp;
     }
 
     public String getNom() {
-        return nom.get();
-    }
-
-    public StringProperty nomProperty() {
         return nom;
     }
 
     public void setNom(String nom) {
-        this.nom.set(nom);
+        this.nom = nom;
     }
 }

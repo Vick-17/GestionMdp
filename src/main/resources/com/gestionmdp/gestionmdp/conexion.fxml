@@ -7,7 +7,7 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane prefHeight="200" prefWidth="400" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.gestionmdp.gestionmdp.goodbyController">
+<AnchorPane prefHeight="200" prefWidth="400" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.gestionmdp.gestionmdp.GoodbyController">
     <children>
         <Label layoutX="52.0" layoutY="67.0" text="Adresse e-mail" />
         <TextField fx:id="emailTextField" layoutX="152.0" layoutY="67.0" />

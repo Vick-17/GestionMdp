@@ -5,6 +5,7 @@ module com.gestionmdp.gestionmdp {
     requires com.fasterxml.jackson.databind;
     requires java.sql;
     requires jbcrypt;
+    requires java.prefs;
 
 
     opens com.gestionmdp.gestionmdp to javafx.fxml;

@@ -1,29 +1,15 @@
 package com.gestionmdp.gestionmdp;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.scene.input.MouseEvent;
-import org.json.JSONException;
-import org.json.JSONObject;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.net.URL;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.Random;
 
+
 public class HelloController {
-    String jsonMdp;
-    String jsonMdpName;
     @FXML
     private Label generateMdp;
 
@@ -40,9 +26,6 @@ public class HelloController {
 
     @FXML
     private CheckBox checkSpec;
-
-    @FXML
-    private Button btnGenerate;
     @FXML
     private CheckBox checkNbr;
     @FXML
@@ -51,96 +34,114 @@ public class HelloController {
     private TableColumn<Password, String> colMdp = null;
     @FXML
     private TableView<Password> tableMdp = null;
-    private ObservableList<Password> password = FXCollections.observableArrayList();
-    ObjectMapper objectMapper = new ObjectMapper();
+    private final ObservableList<Password> password = FXCollections.observableArrayList();
+    PasswordDao passwordDao = new PasswordDao();
 
-    public void initialize() throws IOException, SQLException {
-        Connection connection = ConnextionBdd.connextionBdd();
-        PreparedStatement passwordStatement = connection.prepareStatement("select * from passwordCompte");
-        ResultSet result = passwordStatement.executeQuery();
-        while (result.next()){
-        String name = result.getString("compteName");
-        String mdp = result.getString("mdpCompte");
-        Password p = new Password(name, mdp);
-        password.add(p);
-        }
+    public void initialize() {
+
+        int userId = GetUserId.getInstance().getId();
+        password.addAll(passwordDao.findByUserID(userId));
+
         tableMdp.setItems(password);
-        colNomMdp.setCellValueFactory(cellData -> cellData.getValue().nomProperty());
-        colMdp.setCellValueFactory(cellData -> new SimpleStringProperty("..."));
 
-            /*objectJson jsonObject = new objectJson(jsonMdp, jsonMdpName);
-        jsonMdp = jsonObject.getJsonMdp();
-        jsonMdpName = jsonObject.getJsonMdpName();*/
+        colNomMdp.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getNom()));
+        colMdp.setCellValueFactory(cellData -> new SimpleStringProperty("..."));
     }
+
+
     @FXML
-    public void showPassword(MouseEvent event){
+    public void showPassword() {
+
         Password password1 = tableMdp.getSelectionModel().getSelectedItem();
+
+
         colMdp.setCellValueFactory(cellData -> {
-            if (cellData.getValue().equals(password1)){
-               return cellData.getValue().mdpProperty();
-            }else {
+            if (cellData.getValue().equals(password1)) {
+
+
+                return new SimpleStringProperty(cellData.getValue().getMdp());
+            } else {
+
+
                 return new SimpleStringProperty("...");
             }
         });
+
+        // Rafraîchissement de la table pour afficher les changements
         tableMdp.refresh();
     }
 
+
     @FXML
-    public void delete(ActionEvent event) throws IOException {
-            Password passwordSelect = tableMdp.getSelectionModel().getSelectedItem();
-            password.remove(passwordSelect);
-        File fichier = new File("passwords.json");
-        objectMapper.writeValue(fichier, password);
+    public void delete() {
+
     }
+
+
     @FXML
-    public void onGenerate(ActionEvent event) {
+    public void onGenerate() {
+
         String nbrCharVide = nbrChar.getText();
+
+
         if (nbrCharVide.isEmpty()) {
-            generateMdp.setText("le nombre de charactére ne peut étre nul");
+
+
+            generateMdp.setText("le nombre de caractère ne peut être nul");
         } else {
+
             String password = generatePassword(Integer.parseInt(nbrChar.getText()), chexkMaj.isSelected(), checkMin.isSelected(), checkSpec.isSelected(), checkNbr.isSelected());
+
+
             generateMdp.setText(password);
         }
     }
 
     @FXML
-    public void onSave(ActionEvent event) throws JSONException, IOException, SQLException {
+    public void onSave() {
+
+
         String nom = mdpName.getText();
         String mdp = generateMdp.getText();
+
+
         if (nom.isEmpty()) {
-            generateMdp.setText("Veuiller entrer un nom a votre mot de passe");
+
+
+            generateMdp.setText("Veuillez entrer un nom pour votre mot de passe");
         } else {
+
+
             tableMdp.setItems(password);
             password.add(new Password(nom, mdp));
-            colNomMdp.setCellValueFactory(cellData -> cellData.getValue().nomProperty());
-            colMdp.setCellValueFactory(cellData -> cellData.getValue().mdpProperty());
-            Connection connection = ConnextionBdd.connextionBdd();
-            PreparedStatement statement = connection.prepareStatement("insert into passwordCompte (mdpCompte, compteName) values (?,?)");
-            statement.setString(1, mdp);
-            statement.setString(2, nom);
-            statement.executeUpdate();
-/*            JSONObject objJson = new JSONObject();
-            objJson.put("nom", nom);
-            objJson.put("mdp", mdp);
 
-            try (FileWriter file = new FileWriter("passwords.json", true)) {
-                file.write(objJson.toString());
-                file.write("\n");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }*/
+
+            colNomMdp.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getNom()));
+            colMdp.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getMdp()));
+
+            int userId = GetUserId.getInstance().getId();
+            passwordDao.addMdpCompte(nom, mdp, userId);
         }
     }
 
+
     private String generatePassword(int length, boolean upperCase, boolean lowerCase, boolean specialChar, boolean checkNbr) {
+
+
         StringBuilder password = new StringBuilder();
+
+
         Random random = new Random();
+
+
         String upperCaseChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
         String lowerCaseChars = "abcdefghijklmnopqrstuvwxyz";
         String specialChars = "!@#$%^&*()_+";
         String number = "1234567890";
 
+
         String isCheckedChars = "";
+
         if (upperCase) {
             isCheckedChars += upperCaseChars;
         }
@@ -154,8 +155,13 @@ public class HelloController {
             isCheckedChars += number;
         }
 
+
         for (int i = 0; i < length; i++) {
+
+
             int randomIndex = random.nextInt(isCheckedChars.length());
+
+
             password.append(isCheckedChars.charAt(randomIndex));
         }
         return password.toString();

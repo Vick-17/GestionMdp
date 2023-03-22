@@ -3,20 +3,24 @@ package com.gestionmdp.gestionmdp;
 import java.sql.*;
 
 public class ConnextionBdd {
+    private static ConnextionBdd instance;
+    public Connection connection;
 
-
-    public static Connection connextionBdd() throws SQLException {
-        Connection conn = null;
+    private ConnextionBdd() {
         try {
             String url = "jdbc:postgresql://localhost:5432/GestionMdp";
             String user = "postgres";
             String password = "iie254007.";
-            conn = DriverManager.getConnection(url, user, password);
-            System.out.println("Connexion établie avec succès !");
-        } catch (
-                SQLException e) {
-            System.out.println(e.getMessage());
+            connection = DriverManager.getConnection(url, user, password);
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-        return conn;
+    }
+
+    public static ConnextionBdd getInstance() {
+        if (instance == null) {
+            instance = new ConnextionBdd();
+        }
+        return instance;
     }
 }
